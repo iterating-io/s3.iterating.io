@@ -7,7 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.iterating.s3.consumer.config.S3IsolationProperties;
+import io.iterating.s3.consumer.config.S3ReconciliationProperties;
 import io.iterating.s3.consumer.messaging.S3ObjectEvent;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -21,12 +21,12 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
-class S3IsolationServiceTest {
+class S3ReconciliationServiceTest {
 
     private final S3Client s3Client = org.mockito.Mockito.mock(S3Client.class);
-    private final S3IsolationService service = new S3IsolationService(
+    private final S3ReconciliationService service = new S3ReconciliationService(
             s3Client,
-            new S3IsolationProperties("backup-bucket", "isolated", List.of("source-bucket"), "ap-northeast-2", null));
+            new S3ReconciliationProperties("backup-bucket", "isolated", List.of("source-bucket"), "ap-northeast-2", null));
 
     @Test
     void copiesVerifiesAndDeletesSourceObject() {
@@ -36,7 +36,7 @@ class S3IsolationServiceTest {
         when(s3Client.copyObject(any(CopyObjectRequest.class))).thenReturn(CopyObjectResponse.builder().build());
         when(s3Client.deleteObject(any(DeleteObjectRequest.class))).thenReturn(DeleteObjectResponse.builder().build());
 
-        S3IsolationResult result = service.isolate(new S3ObjectEvent("source-bucket", "path/object.txt", null, "event-1", null));
+        S3ReconciliationResult result = service.reconcile(new S3ObjectEvent("source-bucket", "path/object.txt", null, "event-1", null));
 
         assertThat(result.sourceDeleted()).isTrue();
         assertThat(result.backupBucket()).isEqualTo("backup-bucket");
@@ -56,7 +56,7 @@ class S3IsolationServiceTest {
                 .thenThrow(notFound)
                 .thenReturn(HeadObjectResponse.builder().contentLength(12L).build());
 
-        S3IsolationResult result = service.isolate(new S3ObjectEvent("source-bucket", "path/object.txt", null, "event-1", null));
+        S3ReconciliationResult result = service.reconcile(new S3ObjectEvent("source-bucket", "path/object.txt", null, "event-1", null));
 
         assertThat(result.sourceDeleted()).isFalse();
         assertThat(result.backupKey()).startsWith("isolated/source-bucket/");

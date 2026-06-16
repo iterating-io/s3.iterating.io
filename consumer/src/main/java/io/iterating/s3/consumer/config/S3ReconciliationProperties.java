@@ -10,8 +10,8 @@ import org.springframework.validation.annotation.Validated;
 import jakarta.validation.constraints.NotBlank;
 
 @Validated
-@ConfigurationProperties(prefix = "s3-isolation")
-public record S3IsolationProperties(
+@ConfigurationProperties(prefix = "s3-reconciliation")
+public record S3ReconciliationProperties(
         @NotBlank String backupBucket,
         @NotBlank String backupPrefix,
         List<String> allowedSourceBuckets,

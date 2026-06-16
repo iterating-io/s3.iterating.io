@@ -12,8 +12,8 @@ It does not contain NATS implementation details directly. Instead, it depends on
 ## Structure
 
 - `config/ConsumerConfiguration.java` - application wiring and bean definitions
-- `messaging/S3ObjectEventMessageHandler.java` - converts raw NATS payloads into `S3ObjectEvent` objects and delegates isolation
-- `service/S3IsolationService.java` - S3 backup and deletion logic
+- `messaging/S3ObjectEventMessageHandler.java` - converts raw NATS payloads into `S3ObjectEvent` objects and delegates reconciliation
+- `service/S3ReconciliationService.java` - S3 backup and deletion logic
 
 ## Build
 

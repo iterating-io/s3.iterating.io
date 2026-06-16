@@ -21,7 +21,7 @@ nats:
     fetch-timeout: ${NATS_FETCH_TIMEOUT:5s}
     idle-delay: ${NATS_IDLE_DELAY:5s}
 
-s3-isolation:
+s3-reconciliation:
     backup-bucket: ${S3_BACKUP_BUCKET:}
     backup-prefix: ${S3_BACKUP_PREFIX:isolated}
     allowed-source-buckets: ${S3_ALLOWED_SOURCE_BUCKETS:}

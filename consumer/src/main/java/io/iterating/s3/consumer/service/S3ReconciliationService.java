@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 
-import io.iterating.s3.consumer.config.S3IsolationProperties;
+import io.iterating.s3.consumer.config.S3ReconciliationProperties;
 import io.iterating.s3.consumer.messaging.InvalidS3ObjectEventException;
 import io.iterating.s3.consumer.messaging.S3ObjectEvent;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -15,17 +15,17 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-public class S3IsolationService {
+public class S3ReconciliationService {
 
     private final S3Client s3Client;
-    private final S3IsolationProperties properties;
+    private final S3ReconciliationProperties properties;
 
-    public S3IsolationService(S3Client s3Client, S3IsolationProperties properties) {
+    public S3ReconciliationService(S3Client s3Client, S3ReconciliationProperties properties) {
         this.s3Client = s3Client;
         this.properties = properties;
     }
 
-    public S3IsolationResult isolate(S3ObjectEvent event) {
+    public S3ReconciliationResult reconcile(S3ObjectEvent event) {
         event.validate();
         if (!properties.acceptsSourceBucket(event.bucket())) {
             throw new InvalidS3ObjectEventException("Source bucket is not allowed: " + event.bucket());
@@ -34,13 +34,13 @@ public class S3IsolationService {
         String backupKey = backupKey(event);
         HeadObjectResponse sourceHead = headSource(event, backupKey);
         if (sourceHead == null) {
-            return new S3IsolationResult(event.bucket(), event.key(), properties.backupBucket(), backupKey, false);
+            return new S3ReconciliationResult(event.bucket(), event.key(), properties.backupBucket(), backupKey, false);
         }
         copyToBackup(event, backupKey);
         verifyBackup(event, backupKey, sourceHead.contentLength());
         deleteSource(event);
 
-        return new S3IsolationResult(event.bucket(), event.key(), properties.backupBucket(), backupKey, true);
+        return new S3ReconciliationResult(event.bucket(), event.key(), properties.backupBucket(), backupKey, true);
     }
 
     private HeadObjectResponse headSource(S3ObjectEvent event, String backupKey) {
@@ -50,7 +50,7 @@ public class S3IsolationService {
             if (exception.statusCode() == 404 && backupExists(backupKey)) {
                 return null;
             }
-            throw new S3IsolationException("Failed to read source object metadata", exception);
+            throw new S3ReconciliationException("Failed to read source object metadata", exception);
         }
     }
 
@@ -75,7 +75,7 @@ public class S3IsolationService {
                 .build());
 
         if (expectedContentLength != null && backupHead.contentLength() != expectedContentLength) {
-            throw new S3IsolationException("Backup size does not match source size for " + event.bucket() + "/" + event.key());
+            throw new S3ReconciliationException("Backup size does not match source size for " + event.bucket() + "/" + event.key());
         }
     }
 
