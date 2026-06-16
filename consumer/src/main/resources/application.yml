@@ -1,0 +1,29 @@
+spring:
+    application:
+        name: s3-iterating-consumer
+    main:
+        web-application-type: none
+
+management:
+    endpoints:
+        enabled-by-default: false
+    endpoint:
+        health:
+            enabled: true
+
+nats:
+    servers: ${NATS_SERVERS:nats://localhost:4222}
+    credentials: ${NATS_CREDENTIALS:}
+    stream: ${NATS_STREAM:s3-events}
+    durable: ${NATS_DURABLE:s3-isolator}
+    filter-subject: ${NATS_FILTER_SUBJECT:s3.object.delete}
+    batch-size: ${NATS_BATCH_SIZE:10}
+    fetch-timeout: ${NATS_FETCH_TIMEOUT:5s}
+    idle-delay: ${NATS_IDLE_DELAY:5s}
+
+s3-isolation:
+    backup-bucket: ${S3_BACKUP_BUCKET:}
+    backup-prefix: ${S3_BACKUP_PREFIX:isolated}
+    allowed-source-buckets: ${S3_ALLOWED_SOURCE_BUCKETS:}
+    region: ${AWS_REGION:ap-northeast-2}
+    endpoint-override: ${AWS_ENDPOINT_URL:}
