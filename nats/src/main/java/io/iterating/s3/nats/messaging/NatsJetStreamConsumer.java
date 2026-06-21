@@ -24,10 +24,31 @@ public class NatsJetStreamConsumer implements SmartLifecycle {
     private final Connection connection;
     private final NatsProperties properties;
     private final MessageHandler messageHandler;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(Thread.ofVirtual()
-            .name("nats-s3-consumer-", 0)
-            .factory());
+    private final ExecutorService executor;
     private final AtomicBoolean running = new AtomicBoolean(false);
+
+    /*
+     * Testability helpers: adapter interface and a method to submit runnables
+     * to the consumer's executor. These are package-private so tests in the
+     * same package can exercise processing and thread naming without heavy
+     * external mocking.
+     */
+    interface MessageAdapter {
+
+        byte[] getData();
+
+        String getSubject();
+
+        void ack();
+
+        void term();
+
+        void nak();
+    }
+
+    void submitToExecutor(Runnable r) {
+        executor.submit(r);
+    }
 
     public NatsJetStreamConsumer(
             Connection connection,
@@ -36,6 +57,16 @@ public class NatsJetStreamConsumer implements SmartLifecycle {
         this.connection = connection;
         this.properties = properties;
         this.messageHandler = messageHandler;
+        String prefix = "nats-s3-consumer-";
+        if (properties != null) {
+            String connName = properties.connectionName();
+            if (connName != null && !connName.isBlank()) {
+                prefix = connName + "-consumer-";
+            }
+        }
+        this.executor = Executors.newSingleThreadExecutor(Thread.ofVirtual()
+                .name(prefix, 0)
+                .factory());
     }
 
     @Override
@@ -92,13 +123,52 @@ public class NatsJetStreamConsumer implements SmartLifecycle {
     }
 
     private void process(Message message) {
+        // Delegate to the adapter-based processing for easier testing.
+        processAdapter(new MessageAdapter() {
+            @Override
+            public byte[] getData() {
+                return message.getData();
+            }
+
+            @Override
+            public String getSubject() {
+                return message.getSubject();
+            }
+
+            @Override
+            public void ack() {
+                message.ack();
+            }
+
+            @Override
+            public void term() {
+                message.term();
+            }
+
+            @Override
+            public void nak() {
+                message.nak();
+            }
+        });
+    }
+
+    // Package-private for tests
+    void processAdapter(MessageAdapter message) {
         try {
             messageHandler.handle(message.getData(), message.getSubject());
             message.ack();
         } catch (InvalidMessageException exception) {
-            terminate(message, exception);
+            try {
+                message.term();
+            } catch (Exception ackException) {
+                log.error("Failed to terminate invalid NATS message subject={}", message.getSubject(), ackException);
+            }
         } catch (Exception exception) {
-            retry(message, exception);
+            try {
+                message.nak();
+            } catch (Exception ackException) {
+                log.error("Failed to negatively acknowledge NATS message subject={}", message.getSubject(), ackException);
+            }
         }
     }
 

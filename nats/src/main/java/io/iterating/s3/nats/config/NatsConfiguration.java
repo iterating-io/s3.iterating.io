@@ -17,7 +17,7 @@ public class NatsConfiguration {
     Connection natsConnection(NatsProperties properties) throws IOException, InterruptedException {
         Options.Builder builder = new Options.Builder()
                 .servers(properties.serverList().toArray(String[]::new))
-                .connectionName("s3-iterating-consumer")
+                .connectionName(properties.connectionName())
                 .maxReconnects(-1)
                 .authHandler(Nats.staticCredentials(normalizedCredentials(properties).getBytes(StandardCharsets.UTF_8)));
 

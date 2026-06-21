@@ -17,6 +17,8 @@ public record NatsProperties(
         @NotBlank
         String credentials,
         @NotBlank
+        String connectionName,
+        @NotBlank
         String stream,
         @NotBlank
         String durable,

@@ -1,3 +1,5 @@
 {
-    "yaml.schemaStore.enable": false
+    "yaml.schemaStore.enable": false,
+    "jdk.runConfig.env": "a=1 \nb=2",
+    "claudeCodeChat.permissions.yoloMode": true
 }

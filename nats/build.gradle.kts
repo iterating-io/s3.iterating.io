@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    id("org.springframework.boot")
     id("io.spring.dependency-management")
 }
 
@@ -17,10 +18,29 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers:1.19.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 dependencyManagement {
     imports {
         mavenBom("org.springframework.boot:spring-boot-dependencies:3.5.0")
     }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    args = listOf("--spring.profiles.active=local")
+}
+
+tasks.register("localRun") {
+    group = "application"
+    description = "Run nats application locally"
+
+    dependsOn("bootRun")
 }
