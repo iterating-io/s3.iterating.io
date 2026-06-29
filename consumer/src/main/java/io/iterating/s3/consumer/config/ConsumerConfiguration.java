@@ -13,7 +13,7 @@ import io.iterating.s3.nats.messaging.MessageHandler;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
-@Import({NatsConsumerConfiguration.class, S3Configuration.class})
+@Import({NatsConsumerConfiguration.class, S3Configuration.class, AwsCredentialsConfiguration.class})
 public class ConsumerConfiguration {
 
     @Bean

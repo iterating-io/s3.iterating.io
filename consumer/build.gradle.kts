@@ -26,6 +26,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation(project(":nats"))
     implementation("software.amazon.awssdk:s3")
+    implementation("software.amazon.awssdk:sts")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 

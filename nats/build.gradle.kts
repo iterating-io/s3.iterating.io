@@ -33,14 +33,3 @@ dependencyManagement {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
-
-tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
-    args = listOf("--spring.profiles.active=local")
-}
-
-tasks.register("localRun") {
-    group = "application"
-    description = "Run nats application locally"
-
-    dependsOn("bootRun")
-}

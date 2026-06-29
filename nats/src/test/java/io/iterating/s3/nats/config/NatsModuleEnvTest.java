@@ -14,12 +14,12 @@ public class NatsModuleEnvTest {
     @Test
     void connectsUsingEnvironment() throws Exception {
         String servers = System.getenv("NATS_SERVERS");
-        String credentials = System.getenv("NATS_CREDENTIALS");
+        String credentials = System.getenv("NATS_CREDENTIALS_PATH");
         String connectionName = System.getenv("NATS_CONNECTION_NAME");
 
         // Require servers and credentials to be present; otherwise skip this integration test
         Assumptions.assumeTrue(servers != null && !servers.isBlank(), "NATS_SERVERS not set");
-        Assumptions.assumeTrue(credentials != null && !credentials.isBlank(), "NATS_CREDENTIALS not set");
+        Assumptions.assumeTrue(credentials != null && !credentials.isBlank(), "NATS_CREDENTIALS_PATH not set");
 
         NatsProperties props = new NatsProperties(
                 servers,

@@ -12,15 +12,22 @@ echo "== NATS environment variables =="
 print_var() {
   name="$1"
   value="${!name-}"
-  if [ "$name" = "NATS_CREDENTIALS" ]; then
+  if [ "$name" = "NATS_CREDENTIALS_PATH" ]; then
     if [ -z "$value" ]; then
       echo "$name: (empty)"
     else
-      # show a compact preview with newlines escaped and length
-      preview=$(printf '%s' "$value" | sed -e ':a;N;$!ba;s/\n/\\n/g' | cut -c1-200)
-      echo "$name (preview, newlines escaped): $preview"
-      echo "$name (length bytes): $(printf '%s' "$value" | wc -c)"
-      echo "$name (first line): $(printf '%s' "$value" | sed -n '1p')"
+      # If the value is a path to a file, show a preview of the file contents; otherwise treat value as inline creds
+      if [ -f "$value" ]; then
+        preview=$(sed -e ':a;N;$!ba;s/\n/\\n/g' "$value" | cut -c1-200)
+        echo "$name (preview from file, newlines escaped): $preview"
+        echo "$name (file size bytes): $(wc -c < "$value")"
+        echo "$name (first line): $(sed -n '1p' "$value")"
+      else
+        preview=$(printf '%s' "$value" | sed -e ':a;N;$!ba;s/\n/\\n/g' | cut -c1-200)
+        echo "$name (preview, newlines escaped): $preview"
+        echo "$name (length bytes): $(printf '%s' "$value" | wc -c)"
+        echo "$name (first line): $(printf '%s' "$value" | sed -n '1p')"
+      fi
     fi
   else
     echo "$name: $value"
@@ -35,7 +42,7 @@ print_var NATS_FILTER_SUBJECT
 print_var NATS_BATCH_SIZE
 print_var NATS_FETCH_TIMEOUT
 print_var NATS_IDLE_DELAY
-print_var NATS_CREDENTIALS
+print_var NATS_CREDENTIALS_PATH
 
 echo
 echo "== TCP connectivity check =="

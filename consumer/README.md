@@ -25,3 +25,19 @@ It does not contain NATS implementation details directly. Instead, it depends on
 
 The consumer uses Spring Boot and configuration from `consumer/src/main/resources/application.yml`.
 Set required environment variables before running.
+
+## Container Image
+
+Build the consumer image from the repository root:
+
+```bash
+docker build -f consumer/Dockerfile -t ghcr.io/<your-org>/s3-iterating-consumer:consumer-latest .
+```
+
+Push the resulting image after logging in to your registry:
+
+```bash
+docker push ghcr.io/<your-org>/s3-iterating-consumer:consumer-latest
+```
+
+The image defaults to `SPRING_PROFILES_ACTIVE=prod`, so production configuration must come from environment variables or external config at runtime.

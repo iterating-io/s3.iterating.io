@@ -14,8 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 public record NatsProperties(
         @NotBlank
         String servers,
-        @NotBlank
-        String credentials,
+        String credentialsPath,
         @NotBlank
         String connectionName,
         @NotBlank

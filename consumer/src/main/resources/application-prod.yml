@@ -1,0 +1,31 @@
+# Production profile: no default values. All values must come from environment or external config.
+#
+# This file intentionally contains placeholder expressions without fallback defaults
+# so that the application fails fast in production if required configuration is missing.
+
+management:
+    endpoints:
+        enabled-by-default: ${MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT}
+    endpoint:
+        health:
+            enabled: ${MANAGEMENT_ENDPOINT_HEALTH_ENABLED}
+
+nats:
+    servers: ${NATS_SERVERS}
+    connection-name: ${NATS_CONNECTION_NAME}
+    credentials-path: ${NATS_CREDENTIALS_PATH}
+    stream: ${NATS_STREAM}
+    durable: ${NATS_DURABLE}
+    filter-subject: ${NATS_FILTER_SUBJECT}
+    batch-size: ${NATS_BATCH_SIZE}
+    fetch-timeout: ${NATS_FETCH_TIMEOUT}
+    idle-delay: ${NATS_IDLE_DELAY}
+
+s3:
+    backup-bucket: ${S3_BACKUP_BUCKET}
+    region: ${AWS_REGION}
+    endpoint-override: ${AWS_ENDPOINT_URL}
+
+aws:
+    access-key: ${AWS_ACCESS_KEY_ID}
+    secret-key: ${AWS_SECRET_ACCESS_KEY}

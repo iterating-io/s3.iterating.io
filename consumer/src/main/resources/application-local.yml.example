@@ -1,0 +1,25 @@
+spring:
+  profiles: local
+
+# Local profile example for development. Copy to
+# `consumer/src/main/resources/application-local.yml` and fill in real values.
+# Do NOT commit the copied file if it contains real credentials.
+aws:
+  access-key: ${AWS_ACCESS_KEY_ID:LOCAL_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_ACCESS_KEY:LOCAL_SECRET_KEY}
+  #session-token: ${AWS_SESSION_TOKEN:}
+
+nats:
+  servers: ${NATS_SERVERS:nats://localhost:4222}
+  credentials-path: ${NATS_CREDENTIALS_PATH:consumer/.creds}
+  stream: ${NATS_STREAM:reconcile}
+  durable: ${NATS_DURABLE:s3-reconcile}
+  filter-subject: ${NATS_FILTER_SUBJECT:s3.reconcile}
+  batch-size: ${NATS_BATCH_SIZE:10}
+  fetch-timeout: ${NATS_FETCH_TIMEOUT:5s}
+  idle-delay: ${NATS_IDLE_DELAY:5s}
+
+s3:
+  backup-bucket: ${S3_BACKUP_BUCKET:backup}
+  region: ${AWS_REGION:ap-northeast-2}
+  endpoint-override: ${AWS_ENDPOINT_URL:https://s3.iterating.io}

@@ -1,5 +1,6 @@
 package io.iterating.s3.nats.messaging;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -123,6 +124,15 @@ public class NatsJetStreamConsumer implements SmartLifecycle {
     }
 
     private void process(Message message) {
+        // Print/log the received message (subject + UTF-8 payload) for visibility.
+        try {
+            byte[] data = message.getData();
+            String payload = data == null ? "" : new String(data, StandardCharsets.UTF_8);
+            log.info("NATS message received subject='{}' payload='{}'", message.getSubject(), payload);
+        } catch (Exception e) {
+            log.info("NATS message received subject='{}' (payload unavailable: {})", message.getSubject(), e.getMessage());
+        }
+
         // Delegate to the adapter-based processing for easier testing.
         processAdapter(new MessageAdapter() {
             @Override
@@ -158,16 +168,21 @@ public class NatsJetStreamConsumer implements SmartLifecycle {
             messageHandler.handle(message.getData(), message.getSubject());
             message.ack();
         } catch (InvalidMessageException exception) {
+            // Log the invalid-message reason so the application can observe malformed inputs
+            log.warn("Invalid NATS message subject={} error={}", message.getSubject(), exception.getMessage(), exception);
             try {
                 message.term();
             } catch (Exception ackException) {
                 log.error("Failed to terminate invalid NATS message subject={}", message.getSubject(), ackException);
             }
         } catch (Exception exception) {
+            // Log processing errors so operators can see S3/AWS or other failures
+            String subj = message.getSubject();
+            log.error("Failed to process NATS message subject=" + subj + "; scheduling for retry", exception);
             try {
                 message.nak();
             } catch (Exception ackException) {
-                log.error("Failed to negatively acknowledge NATS message subject={}", message.getSubject(), ackException);
+                log.error("Failed to negatively acknowledge NATS message subject=" + subj, ackException);
             }
         }
     }

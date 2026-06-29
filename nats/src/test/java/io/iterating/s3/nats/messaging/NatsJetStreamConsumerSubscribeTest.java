@@ -1,18 +1,17 @@
 package io.iterating.s3.nats.messaging;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.time.Duration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 import io.iterating.s3.nats.config.NatsProperties;
 import io.nats.client.JetStream;
 import io.nats.client.JetStreamSubscription;
-import io.nats.client.PullSubscribeOptions;
 
 public class NatsJetStreamConsumerSubscribeTest {
 
@@ -38,7 +37,7 @@ public class NatsJetStreamConsumerSubscribeTest {
                 captured[1] = args[1]; // options
                 // return a simple JetStreamSubscription proxy that returns empty list for fetch
                 return Proxy.newProxyInstance(JetStreamSubscription.class.getClassLoader(),
-                        new Class[] { JetStreamSubscription.class },
+                        new Class[]{JetStreamSubscription.class},
                         (p, m, a) -> {
                             if ("fetch".equals(m.getName())) {
                                 return java.util.Collections.emptyList();
@@ -50,21 +49,24 @@ public class NatsJetStreamConsumerSubscribeTest {
         };
 
         JetStream jsProxy = (JetStream) Proxy.newProxyInstance(JetStream.class.getClassLoader(),
-                new Class[] { JetStream.class }, handler);
+                new Class[]{JetStream.class}, handler);
 
         java.lang.reflect.InvocationHandler connHandler = (proxy, method, args) -> {
-            if ("jetStream".equals(method.getName())) return jsProxy;
-            if ("flush".equals(method.getName())) return null;
+            if ("jetStream".equals(method.getName())) {
+                return jsProxy;
+            }
+            if ("flush".equals(method.getName())) {
+                return null;
+            }
             return null;
         };
 
         io.nats.client.Connection connProxy = (io.nats.client.Connection) Proxy.newProxyInstance(
                 io.nats.client.Connection.class.getClassLoader(),
-                new Class[] { io.nats.client.Connection.class }, connHandler);
+                new Class[]{io.nats.client.Connection.class}, connHandler);
 
-        NatsJetStreamConsumer consumer = new NatsJetStreamConsumer(connProxy, props, (p, s) -> {});
-
-        
+        NatsJetStreamConsumer consumer = new NatsJetStreamConsumer(connProxy, props, (p, s) -> {
+        });
 
         Method subscribeMethod = NatsJetStreamConsumer.class.getDeclaredMethod("subscribe", JetStream.class);
         subscribeMethod.setAccessible(true);
@@ -93,22 +95,29 @@ public class NatsJetStreamConsumerSubscribeTest {
     }
 
     private static String tryGetString(Object obj, String... names) {
-        if (obj == null) return null;
+        if (obj == null) {
+            return null;
+        }
         Class<?> c = obj.getClass();
         for (String name : names) {
             try {
                 try {
                     Method m = c.getMethod(name);
                     Object r = m.invoke(obj);
-                    if (r != null) return r.toString();
+                    if (r != null) {
+                        return r.toString();
+                    }
                 } catch (NoSuchMethodException e) {
                     // try declared
                     try {
                         Method m = c.getDeclaredMethod(name);
                         m.setAccessible(true);
                         Object r = m.invoke(obj);
-                        if (r != null) return r.toString();
-                    } catch (NoSuchMethodException ignored) {}
+                        if (r != null) {
+                            return r.toString();
+                        }
+                    } catch (NoSuchMethodException ignored) {
+                    }
                 }
             } catch (Exception ex) {
                 // ignore and try next
@@ -117,14 +126,19 @@ public class NatsJetStreamConsumerSubscribeTest {
                 try {
                     java.lang.reflect.Field f = c.getField(name);
                     Object r = f.get(obj);
-                    if (r != null) return r.toString();
+                    if (r != null) {
+                        return r.toString();
+                    }
                 } catch (NoSuchFieldException e) {
                     try {
                         java.lang.reflect.Field f = c.getDeclaredField(name);
                         f.setAccessible(true);
                         Object r = f.get(obj);
-                        if (r != null) return r.toString();
-                    } catch (NoSuchFieldException ignored) {}
+                        if (r != null) {
+                            return r.toString();
+                        }
+                    } catch (NoSuchFieldException ignored) {
+                    }
                 }
             } catch (Exception ex) {
                 // ignore
