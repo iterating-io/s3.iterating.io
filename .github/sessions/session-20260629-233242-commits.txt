@@ -1,0 +1,5 @@
+e97cbe2 2026-06-29 23:43:29 +0900 chore(config): finalize prod config and update .gitignore
+3d7f957 2026-06-29 23:05:08 +0900 chore(docker): copy only needed files for consumer build; enable Gradle cache
+f5116b6 2026-06-29 17:06:52 +0900 chore(docker): add root Dockerfile for consumer image (dockerfile.consumer)
+abf8be1 2026-06-29 16:44:02 +0900 chore(config): remove application-local.yml.example
+e8e26fc 2026-06-29 16:41:52 +0900 chore(config): add application-local.yml (local profile)
