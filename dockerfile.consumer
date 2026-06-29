@@ -9,9 +9,23 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY . .
+## Copy only the files needed to build the `:consumer` module so the image
+## context is smaller and Docker cache is more effective.
+COPY gradlew gradlew
+COPY gradle gradle
+COPY settings.gradle.kts settings.gradle.kts
+COPY build.gradle.kts build.gradle.kts
 
-RUN set -eux; \
+# Copy module build files and sources. The project is multi-module; include the
+# consumer and nats modules (consumer depends on :nats).
+COPY consumer/build.gradle.kts consumer/build.gradle.kts
+COPY consumer/src consumer/src
+COPY nats/build.gradle.kts nats/build.gradle.kts
+COPY nats/src nats/src
+
+# Use BuildKit cache for Gradle to speed up repeated builds.
+RUN --mount=type=cache,target=/root/.gradle \
+    set -eux; \
     chmod +x gradlew; \
     ./gradlew :consumer:bootJar --no-daemon; \
     JAR_FILE="$(find consumer/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-plain.jar' -print -quit)"; \
@@ -19,8 +33,10 @@ RUN set -eux; \
 
 FROM eclipse-temurin:25-jre-jammy AS runtime
 
-ENV SPRING_PROFILES_ACTIVE=prod \
-    JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75 -Dfile.encoding=UTF-8"
+# Do not bake a default Spring profile into the image. The active profile
+# should be supplied at runtime via the `SPRING_PROFILES_ACTIVE` environment
+# variable so deployments can control which profile is used.
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75 -Dfile.encoding=UTF-8"
 
 WORKDIR /app
 
