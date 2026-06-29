@@ -12,7 +12,6 @@ target/
 !.vscode/settings.json
 
 .env
-consumer/src/main/resources/application-local.yml
 *.creds
 *.pem
 *.jks

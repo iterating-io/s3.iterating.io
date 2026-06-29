@@ -5,10 +5,10 @@
 
 management:
     endpoints:
-        enabled-by-default: ${MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT}
+        enabled-by-default: true
     endpoint:
         health:
-            enabled: ${MANAGEMENT_ENDPOINT_HEALTH_ENABLED}
+            enabled: true
 
 nats:
     servers: ${NATS_SERVERS}
