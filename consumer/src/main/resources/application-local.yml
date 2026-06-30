@@ -14,7 +14,7 @@ management:
 nats:
     servers: ${NATS_SERVERS:nats://nats.iterating.io:34222}
     connection-name: ${NATS_CONNECTION_NAME:s3-reconcile-connection}
-    credentials-path: ${NATS_CREDENTIALS_PATH:consumer/.creds}
+    credentials-path: ${NATS_CREDENTIALS_PATH:s3-reconcile-consumer-user/.creds}
     stream: ${NATS_STREAM:reconcile}
     durable: ${NATS_DURABLE:s3-reconcile}
     filter-subject: ${NATS_FILTER_SUBJECT:s3.reconcile}
