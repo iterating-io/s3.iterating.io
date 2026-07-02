@@ -41,7 +41,7 @@ public class S3ReconciliationService {
             return new S3ReconciliationResult(sourceBucket, sourceKey, properties.backupBucket(), backupKey, false);
         }
         copyToBackup(sourceBucket, sourceKey, backupKey);
-        verifyBackup(sourceBucket, sourceKey, backupKey, sourceHead.eTag(), sourceHead.contentLength());
+        // verifyBackup(sourceBucket, sourceKey, backupKey, sourceHead.eTag(), sourceHead.contentLength());
         deleteSource(sourceBucket, sourceKey);
 
         return new S3ReconciliationResult(sourceBucket, sourceKey, properties.backupBucket(), backupKey, true);

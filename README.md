@@ -49,6 +49,8 @@ Runtime configuration is bound from environment variables through `consumer/src/
 
 **Security note:** The `consumer/src/main/resources/application.yml` file previously contained example AWS credentials. These have been removed; do not commit real credentials. For local testing, set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and optionally `AWS_SESSION_TOKEN` in your environment.
 
+The local Spring profile defaults `NATS_CREDENTIALS_PATH` to `consumer/reconcile.consumer.creds`, which is resolved from the repository root when you run `./gradlew :consumer:bootRun`.
+
 ### Local profile (development)
 
 For local development, you can use a profile-specific configuration. Copy the example file and enable the `local` profile. Do not commit the copied file if it contains real credentials.
